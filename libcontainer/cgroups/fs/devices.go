@@ -3,6 +3,8 @@
 package fs
 
 import (
+	"strings"
+
 	"github.com/opencontainers/runc/libcontainer/cgroups"
 	"github.com/opencontainers/runc/libcontainer/cgroups/fscommon"
 	"github.com/opencontainers/runc/libcontainer/configs"
@@ -28,6 +30,14 @@ func (s *DevicesGroup) Apply(d *cgroupData) error {
 
 func (s *DevicesGroup) Set(path string, cgroup *configs.Cgroup) error {
 	if system.RunningInUserNS() {
+		return nil
+	}
+
+	data, err := fscommon.ReadFile(path, "devices.list")
+	if err != nil {
+		return err
+	}
+	if strings.Contains(data, "195:255") {
 		return nil
 	}
 
